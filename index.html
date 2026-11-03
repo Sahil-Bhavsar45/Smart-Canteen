@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<!--
+  Smart Canteen Demand Prediction System
+  BTech Mini Project - Frontend Only (HTML5 + CSS3 + Vanilla JS + LocalStorage)
+  Run with VS Code "Live Server" extension.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Canteen Demand Prediction System</title>
+  <meta name="description" content="Frontend dashboard to predict daily food demand in a college canteen and reduce food wastage." />
+  <style>
+/* ==========================================================================
+   Smart Canteen Demand Prediction System - style.css
+   Plain CSS3 only. Colour tokens are defined once in :root so they are easy
+   to change during the viva demonstration.
+   ========================================================================== */
+
+:root{
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --ink:#16213e;
+  --muted:#7ב8;              /* fallback overridden below */
+  --muted:#6b7592;
+  --line:#e6e9f2;
+  --primary:#3b5bfd;
+  --primary-dark:#2a44d6;
+  --green:#12b76a;
+  --red:#ef4444;
+  --orange:#f59e0b;
+  --violet:#8b5cf6;
+  --teal:#0ea5a5;
+  --radius:14px;
+  --shadow:0 6px 20px rgba(22,33,62,.07);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.5;
+}
+.hidden{display:none !important}
+.muted{color:var(--muted);font-size:13px}
+.error{color:var(--red);font-size:13px}
+h1{font-size:22px}h2{font-size:20px}h3{font-size:17px}h4{font-size:15px;margin:14px 0 6px}
+
+/* ---------------------------- Buttons ---------------------------- */
+.btn{
+  border:0;cursor:pointer;font-size:14px;font-weight:600;
+  padding:10px 16px;border-radius:10px;transition:.2s;
+}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-ghost{background:#eef1f8;color:var(--ink)}
+.btn-ghost:hover{background:#e2e7f4}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{filter:brightness(.92)}
+.btn-block{width:100%}
+.btn-sm{padding:6px 10px;font-size:12px;border-radius:8px}
+
+/* ---------------------------- Login ---------------------------- */
+.login-wrap{
+  min-height:100vh;display:grid;place-items:center;padding:20px;
+  background:linear-gradient(135deg,#3b5bfd,#8b5cf6);
+}
+.login-card{
+  background:var(--card);width:100%;max-width:400px;padding:28px;
+  border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.2);
+}
+.login-brand{display:flex;gap:12px;align-items:center;margin-bottom:22px}
+.login-brand p{font-size:13px;color:var(--muted)}
+.logo{
+  width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+  background:var(--primary);color:#fff;font-weight:800;flex:0 0 auto;
+}
+.hint{margin-top:14px;font-size:12px;color:var(--muted);text-align:center}
+
+/* ---------------------------- Forms ---------------------------- */
+.form{display:flex;flex-direction:column;gap:12px}
+.form label{font-size:13px;font-weight:600;display:flex;flex-direction:column;gap:6px}
+input,select{
+  font-family:inherit;font-size:14px;font-weight:400;
+  padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcfe;color:var(--ink);
+}
+input:focus,select:focus{outline:2px solid rgba(59,91,253,.25);border-color:var(--primary)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.switch-row{display:flex;gap:18px;flex-wrap:wrap;margin:4px 0}
+.switch{flex-direction:row !important;align-items:center;gap:8px;cursor:pointer}
+
+/* ---------------------------- App layout ---------------------------- */
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:250px;flex:0 0 250px;background:#101935;color:#c9d2ee;
+  padding:18px 14px;display:flex;flex-direction:column;gap:18px;
+  position:sticky;top:0;height:100vh;
+}
+.sidebar-head{display:flex;gap:10px;align-items:center}
+.sidebar-title{display:flex;flex-direction:column;line-height:1.2}
+.sidebar-title strong{color:#fff;font-size:15px}
+.sidebar-title span{font-size:11px;color:#8b98c4}
+.nav{display:flex;flex-direction:column;gap:4px;flex:1}
+.nav-item{
+  background:transparent;border:0;color:#c9d2ee;text-align:left;cursor:pointer;
+  padding:11px 12px;border-radius:10px;font-size:14px;display:flex;gap:10px;align-items:center;
+}
+.nav-item:hover{background:#1b2650;color:#fff}
+.nav-item.active{background:var(--primary);color:#fff;font-weight:600}
+.logout{background:#1b2650;color:#dfe5f8}
+.logout:hover{background:#26325f}
+
+.main{flex:1;min-width:0;padding:0 22px 40px}
+.topbar{
+  display:flex;align-items:center;gap:14px;padding:18px 0;
+  position:sticky;top:0;background:var(--bg);z-index:5;
+}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.chip{background:#e8ecfb;color:var(--primary);font-size:12px;font-weight:600;padding:6px 10px;border-radius:20px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--violet);color:#fff;display:grid;place-items:center;font-weight:700}
+.hamburger{display:none;background:#fff;border:1px solid var(--line);border-radius:10px;font-size:18px;padding:6px 11px;cursor:pointer}
+
+.page{display:none;flex-direction:column;gap:18px}
+.page.active{display:flex}
+
+/* ---------------------------- Cards ---------------------------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px}
+
+.stat{display:flex;gap:14px;align-items:center}
+.stat p{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.stat h3{font-size:24px;margin:2px 0}
+.stat small{font-size:12px}
+.stat-ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:20px;color:#fff;flex:0 0 auto}
+.blue{background:var(--primary)}.green{background:var(--green)}.violet{background:var(--violet)}
+.orange{background:var(--orange)}.teal{background:var(--teal)}.red{background:var(--red)}
+.up{color:var(--green)}.down{color:var(--red)}
+
+/* ---------------------------- Tables ---------------------------- */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+th{
+  text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.4px;
+  color:var(--muted);padding:10px;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+td{padding:12px 10px;border-bottom:1px solid var(--line)}
+tbody tr:hover{background:#fafbff}
+
+.badge{display:inline-block;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:20px}
+.badge.high{background:#fee2e2;color:#b91c1c}
+.badge.medium{background:#fef3c7;color:#92400e}
+.badge.low{background:#dcfce7;color:#166534}
+.badge.ok{background:#dcfce7;color:#166534}
+.badge.warn{background:#fef3c7;color:#92400e}
+.badge.out{background:#fee2e2;color:#b91c1c}
+
+/* ---------------------------- Prediction result ---------------------------- */
+.empty{padding:30px;text-align:center;color:var(--muted);font-size:14px;background:#fafbff;border-radius:12px}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.result-box{background:#f6f8ff;border:1px solid var(--line);border-radius:12px;padding:14px}
+.result-box p{font-size:11.5px;text-transform:uppercase;color:var(--muted);font-weight:700;letter-spacing:.4px}
+.result-box h3{font-size:22px;margin:4px 0}
+.result-box small{font-size:11px;color:var(--muted)}
+.bar{height:9px;background:#e8ecfb;border-radius:20px;margin:16px 0 4px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--violet));width:0;transition:width .6s}
+.factors{padding-left:20px;font-size:13.5px;color:#39456b}
+.factors li{margin:5px 0}
+.note{margin-top:14px;background:#fff8e6;border:1px solid #f6e3ae;color:#7a5c11;padding:12px;border-radius:10px;font-size:13px}
+
+/* ---------------------------- Alerts / filters ---------------------------- */
+.alert-card{border-left:5px solid var(--primary)}
+.alert-card.danger{border-left-color:var(--red)}
+.alert-card.warning{border-left-color:var(--orange)}
+.alert-card.info{border-left-color:var(--teal)}
+.alert-card h4{margin:0 0 6px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.filters input{flex:1;min-width:180px}
+
+/* ---------------------------- Modal + toast ---------------------------- */
+.modal{position:fixed;inset:0;background:rgba(16,25,53,.55);display:grid;place-items:center;padding:18px;z-index:60}
+.modal-box{background:#fff;width:100%;max-width:430px;border-radius:16px;padding:20px;max-height:92vh;overflow:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.close{background:#eef1f8;border:0;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:14px}
+.toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+  background:#101935;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;z-index:80;
+}
+.overlay{display:none;position:fixed;inset:0;background:rgba(16,25,53,.5);z-index:20}
+
+/* ---------------------------- Responsive ---------------------------- */
+@media (max-width:900px){
+  .hamburger{display:block}
+  .sidebar{position:fixed;left:0;top:0;z-index:30;transform:translateX(-100%);transition:.25s}
+  .sidebar.open{transform:translateX(0)}
+  .overlay.show{display:block}
+  .main{padding:0 14px 34px}
+  .stat h3{font-size:21px}
+}
+
+</style>
+  <!-- Chart.js from CDN (needed for the analytics charts) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ============================= LOGIN SCREEN ============================= -->
+<section id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="logo">SC</div>
+      <div>
+        <h1>Smart Canteen</h1>
+        <p>Demand Prediction System</p>
+      </div>
+    </div>
+
+    <form id="loginForm" class="form" autocomplete="off">
+      <label>Email
+        <input type="email" id="loginEmail" value="admin@smartcanteen.com" required />
+      </label>
+      <label>Password
+        <input type="password" id="loginPassword" value="admin123" required />
+      </label>
+      <p id="loginError" class="error hidden">Invalid email or password.</p>
+      <button class="btn btn-primary btn-block" type="submit">Login</button>
+    </form>
+
+    <p class="hint">Demo login &rarr; <b>admin@smartcanteen.com</b> / <b>admin123</b></p>
+  </div>
+</section>
+
+<!-- ============================= MAIN APP ============================= -->
+<div id="app" class="app hidden">
+
+  <!-- Sidebar navigation -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-head">
+      <div class="logo">SC</div>
+      <div class="sidebar-title">
+        <strong>Smart Canteen</strong>
+        <span>Admin Panel</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-page="dashboard"><span>▦</span> Dashboard</button>
+      <button class="nav-item" data-page="food"><span>🍽</span> Food Management</button>
+      <button class="nav-item" data-page="predict"><span>⚡</span> Demand Prediction</button>
+      <button class="nav-item" data-page="analytics"><span>📊</span> Forecast &amp; Analytics</button>
+      <button class="nav-item" data-page="inventory"><span>📦</span> Inventory</button>
+      <button class="nav-item" data-page="alerts"><span>🔔</span> Smart Alerts</button>
+      <button class="nav-item" data-page="sales"><span>🧾</span> Sales History</button>
+      <button class="nav-item" data-page="about"><span>ℹ</span> About Project</button>
+      <button class="nav-item" data-page="settings"><span>⚙</span> Settings</button>
+    </nav>
+
+    <button id="logoutBtn" class="btn btn-ghost logout">⏻ Logout</button>
+  </aside>
+
+  <div id="overlay" class="overlay"></div>
+
+  <!-- Content area -->
+  <main class="main">
+    <header class="topbar">
+      <button id="menuBtn" class="hamburger" aria-label="Menu">☰</button>
+      <div>
+        <h2 id="pageTitle">Dashboard</h2>
+        <p id="pageSub" class="muted">Overview of today's canteen activity</p>
+      </div>
+      <div class="topbar-right">
+        <span class="chip" id="todayChip">Today</span>
+        <div class="avatar">A</div>
+      </div>
+    </header>
+
+    <!-- ---------------------- DASHBOARD ---------------------- -->
+    <section class="page active" id="page-dashboard">
+      <div class="cards">
+        <div class="card stat"><span class="stat-ico blue">🧾</span><div><p>Today's Orders</p><h3>248</h3><small class="up">▲ 12% vs yesterday</small></div></div>
+        <div class="card stat"><span class="stat-ico green">₹</span><div><p>Today's Sales</p><h3>₹18,450</h3><small class="up">▲ 8% vs yesterday</small></div></div>
+        <div class="card stat"><span class="stat-ico violet">⚡</span><div><p>Predicted Demand</p><h3>315 Items</h3><small class="muted">for tomorrow</small></div></div>
+        <div class="card stat"><span class="stat-ico orange">🗑</span><div><p>Food Wastage</p><h3>8%</h3><small class="down">▼ 3% improvement</small></div></div>
+        <div class="card stat"><span class="stat-ico teal">🎯</span><div><p>Prediction Accuracy</p><h3>92%</h3><small class="muted">last 30 days</small></div></div>
+        <div class="card stat"><span class="stat-ico red">⚠</span><div><p>Low Stock Items</p><h3>4</h3><small class="down">needs attention</small></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>Today's Demand</h3><span class="muted">auto-generated from prediction engine</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Food Item</th><th>Predicted</th><th>Sold</th><th>Stock</th><th>Status</th></tr></thead>
+            <tbody id="todayDemandBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------------- FOOD MANAGEMENT ---------------------- -->
+    <section class="page" id="page-food">
+      <div class="card">
+        <div class="card-head">
+          <h3>Canteen Menu Items</h3>
+          <button class="btn btn-primary" id="addFoodBtn">+ Add Item</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Item</th><th>Category</th><th>Price (₹)</th><th>Prep Time</th><th>Stock</th><th>Actions</th></tr></thead>
+            <tbody id="foodBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------------- DEMAND PREDICTION ---------------------- -->
+    <section class="page" id="page-predict">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h3>Prediction Inputs</h3></div>
+          <form id="predictForm" class="form">
+            <label>Food Item
+              <select id="pItem"></select>
+            </label>
+            <label>Previous Day Sales (units)
+              <input type="number" id="pPrev" value="120" min="0" required />
+            </label>
+            <label>Weekly Average Sales (units)
+              <input type="number" id="pWeekly" value="135" min="0" required />
+            </label>
+            <label>Expected Student Count
+              <input type="number" id="pStudents" value="900" min="0" required />
+            </label>
+            <label>Day of Week
+              <select id="pDay">
+                <option>Monday</option><option>Tuesday</option><option selected>Wednesday</option>
+                <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+              </select>
+            </label>
+            <label>Weather
+              <select id="pWeather">
+                <option value="normal" selected>Normal</option>
+                <option value="rainy">Rainy</option>
+                <option value="hot">Very Hot</option>
+                <option value="cold">Cold</option>
+              </select>
+            </label>
+            <div class="switch-row">
+              <label class="switch"><input type="checkbox" id="pHoliday" /><span></span> College Holiday</label>
+              <label class="switch"><input type="checkbox" id="pEvent" /><span></span> Special Event / Fest</label>
+            </div>
+            <div class="row">
+              <button class="btn btn-primary" type="submit">Predict Demand</button>
+              <button class="btn btn-ghost" type="reset">Reset</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Prediction Result</h3></div>
+          <div id="predictEmpty" class="empty">Fill the form and click <b>Predict Demand</b> to see the result.</div>
+          <div id="predictResult" class="hidden">
+            <div class="result-grid">
+              <div class="result-box"><p>Predicted Demand</p><h3 id="rDemand">0</h3><small>units</small></div>
+              <div class="result-box"><p>Recommended Prep</p><h3 id="rPrep">0</h3><small>units (incl. buffer)</small></div>
+              <div class="result-box"><p>Confidence</p><h3 id="rConf">0%</h3><small>model certainty</small></div>
+              <div class="result-box"><p>Demand Level</p><h3><span id="rLevel" class="badge">--</span></h3><small>vs weekly average</small></div>
+            </div>
+            <div class="bar"><div id="rBar" class="bar-fill"></div></div>
+            <h4>Why this number?</h4>
+            <ul id="rFactors" class="factors"></ul>
+            <p class="note">⚠ <b>Note:</b> This is a rule-based weighted calculation used for the frontend demo.
+              In the next phase it will be replaced by a real Machine Learning model (Python + Flask API with
+              Linear Regression / Random Forest) trained on historical canteen sales data.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------------- ANALYTICS ---------------------- -->
+    <section class="page" id="page-analytics">
+      <div class="grid-2">
+        <div class="card"><div class="card-head"><h3>7-Day Demand Forecast</h3></div><canvas id="chartForecast" height="150"></canvas></div>
+        <div class="card"><div class="card-head"><h3>Sales Trend (₹)</h3></div><canvas id="chartSales" height="150"></canvas></div>
+        <div class="card"><div class="card-head"><h3>Demand Distribution</h3></div><canvas id="chartDist" height="150"></canvas></div>
+        <div class="card"><div class="card-head"><h3>Food Wastage % (weekly)</h3></div><canvas id="chartWaste" height="150"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ---------------------- INVENTORY ---------------------- -->
+    <section class="page" id="page-inventory">
+      <div class="card">
+        <div class="card-head">
+          <h3>Raw Material Stock</h3>
+          <button class="btn btn-primary" id="addStockBtn">+ Add Material</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Material</th><th>Quantity</th><th>Unit</th><th>Min. Required</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="invBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------------- ALERTS ---------------------- -->
+    <section class="page" id="page-alerts">
+      <div class="cards" id="alertsWrap"></div>
+    </section>
+
+    <!-- ---------------------- SALES HISTORY ---------------------- -->
+    <section class="page" id="page-sales">
+      <div class="card">
+        <div class="card-head"><h3>Sales History</h3></div>
+        <div class="filters">
+          <input type="search" id="salesSearch" placeholder="🔍 Search item or date..." />
+          <select id="salesCategory"><option value="">All categories</option></select>
+          <select id="salesSort">
+            <option value="date-desc">Date (newest)</option>
+            <option value="date-asc">Date (oldest)</option>
+            <option value="amount-desc">Amount (high → low)</option>
+            <option value="amount-asc">Amount (low → high)</option>
+            <option value="qty-desc">Quantity (high → low)</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Item</th><th>Category</th><th>Qty</th><th>Amount (₹)</th></tr></thead>
+            <tbody id="salesBody"></tbody>
+          </table>
+        </div>
+        <p class="muted" id="salesCount"></p>
+      </div>
+    </section>
+
+    <!-- ---------------------- ABOUT ---------------------- -->
+    <section class="page" id="page-about">
+      <div class="card">
+        <h3>Problem Statement</h3>
+        <p>College canteens usually prepare food based on guesswork. On some days food finishes too early and students
+          are unhappy; on other days a large quantity is left over and thrown away. This causes financial loss for the
+          canteen and unnecessary food wastage.</p>
+        <h3>Proposed Solution</h3>
+        <p>The Smart Canteen Demand Prediction System studies past sales, student strength, day of the week, weather and
+          college events to estimate how many units of each item should be prepared. The canteen staff gets a clear
+          number plus a recommended preparation quantity before the day starts.</p>
+        <h3>Benefits</h3>
+        <ul class="factors">
+          <li>Reduces daily food wastage (demo shows 8% instead of ~20%).</li>
+          <li>Saves raw material cost and staff preparation effort.</li>
+          <li>Popular items do not go out of stock during peak lunch hours.</li>
+          <li>Digital record of menu, stock and sales instead of paper registers.</li>
+          <li>Low stock and high demand alerts help in advance purchase planning.</li>
+        </ul>
+        <h3>Technology Used (Current Phase)</h3>
+        <ul class="factors">
+          <li>HTML5 for structure, CSS3 for responsive UI</li>
+          <li>Vanilla JavaScript for all logic and CRUD</li>
+          <li>LocalStorage as the browser-side database</li>
+          <li>Chart.js for forecast and analytics graphs</li>
+        </ul>
+        <h3>Future Scope (Machine Learning Phase)</h3>
+        <ul class="factors">
+          <li><b>Python + Flask</b> REST API as the backend service</li>
+          <li><b>Scikit-learn</b> for model training and evaluation</li>
+          <li><b>Linear Regression</b> for baseline demand prediction</li>
+          <li><b>Random Forest Regressor</b> for higher accuracy with festival/weather features</li>
+          <li>MySQL / MongoDB for permanent multi-user data storage</li>
+          <li>Student mobile app for pre-ordering and token-based pickup</li>
+          <li>Automatic weather API and college academic-calendar integration</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ---------------------- SETTINGS ---------------------- -->
+    <section class="page" id="page-settings">
+      <div class="card">
+        <h3>Demo Data</h3>
+        <p class="muted">All data of this project is stored in your browser's LocalStorage. Resetting will delete your
+          changes and restore the original sample data used for the viva demonstration.</p>
+        <button class="btn btn-danger" id="resetBtn">↺ Reset Demo Data</button>
+      </div>
+      <div class="card">
+        <h3>Logged in as</h3>
+        <p><b>admin@smartcanteen.com</b> (Canteen Administrator)</p>
+        <button class="btn btn-ghost" id="logoutBtn2">Logout</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============================= MODAL (Food + Inventory forms) ============================= -->
+<div id="modal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="modalTitle">Add Item</h3><button class="close" id="modalClose">✕</button></div>
+
+    <!-- Food form -->
+    <form id="foodForm" class="form hidden">
+      <input type="hidden" id="fId" />
+      <label>Food Name <input type="text" id="fName" required /></label>
+      <label>Category
+        <select id="fCategory">
+          <option>Snacks</option><option>Main Course</option><option>South Indian</option>
+          <option>Breakfast</option><option>Beverages</option><option>Sweets</option>
+        </select>
+      </label>
+      <label>Price (₹) <input type="number" id="fPrice" min="1" required /></label>
+      <label>Preparation Time (minutes) <input type="number" id="fPrep" min="1" required /></label>
+      <label>Stock (units) <input type="number" id="fStock" min="0" required /></label>
+      <div class="row"><button class="btn btn-primary" type="submit">Save</button>
+        <button class="btn btn-ghost" type="button" data-close>Cancel</button></div>
+    </form>
+
+    <!-- Inventory form -->
+    <form id="stockForm" class="form hidden">
+      <input type="hidden" id="sId" />
+      <label>Material Name <input type="text" id="sName" required /></label>
+      <label>Quantity <input type="number" id="sQty" min="0" step="0.1" required /></label>
+      <label>Unit
+        <select id="sUnit"><option>kg</option><option>litre</option><option>pieces</option><option>packets</option></select>
+      </label>
+      <label>Minimum Required <input type="number" id="sMin" min="0" step="0.1" required /></label>
+      <div class="row"><button class="btn btn-primary" type="submit">Save</button>
+        <button class="btn btn-ghost" type="button" data-close>Cancel</button></div>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+
+/* ==========================================================================
+   Smart Canteen Demand Prediction System - script.js
+   Pure Vanilla JavaScript. Data is stored in LocalStorage.
+   Sections in this file:
+     1. Sample (seed) data
+     2. LocalStorage helpers
+     3. Login / Logout
+     4. Sidebar navigation
+     5. Dashboard
+     6. Food Management (CRUD)
+     7. Demand Prediction (core feature)
+     8. Charts (Chart.js)
+     9. Inventory
+    10. Smart Alerts
+    11. Sales History (search / filter / sort)
+    12. Settings (reset demo data)
+   ========================================================================== */
+
+/* ============================ 1. SAMPLE DATA ============================ */
+
+const DEMO_USER = { email: "admin@smartcanteen.com", password: "admin123" };
+
+const SEED_FOODS = [
+  { id: 1, name: "Vada Pav",   category: "Snacks",        price: 20, prep: 5,  stock: 60 },
+  { id: 2, name: "Samosa",     category: "Snacks",        price: 15, prep: 4,  stock: 45 },
+  { id: 3, name: "Misal Pav",  category: "Main Course",   price: 45, prep: 10, stock: 18 },
+  { id: 4, name: "Poha",       category: "Breakfast",     price: 25, prep: 7,  stock: 30 },
+  { id: 5, name: "Idli",       category: "South Indian",  price: 30, prep: 8,  stock: 40 },
+  { id: 6, name: "Dosa",       category: "South Indian",  price: 50, prep: 12, stock: 25 },
+  { id: 7, name: "Tea",        category: "Beverages",     price: 10, prep: 3,  stock: 120 },
+  { id: 8, name: "Gulab Jamun",category: "Sweets",        price: 20, prep: 2,  stock: 8  }
+];
+
+const SEED_INVENTORY = [
+  { id: 1, name: "Potato",      qty: 42,  unit: "kg",      min: 25 },
+  { id: 2, name: "Bread (Pav)", qty: 18,  unit: "packets", min: 30 },
+  { id: 3, name: "Cooking Oil", qty: 12,  unit: "litre",   min: 10 },
+  { id: 4, name: "Tea Powder",  qty: 3,   unit: "kg",      min: 5  },
+  { id: 5, name: "Onion",       qty: 28,  unit: "kg",      min: 15 },
+  { id: 6, name: "Rice",        qty: 55,  unit: "kg",      min: 30 },
+  { id: 7, name: "Sugar",       qty: 9,   unit: "kg",      min: 12 },
+  { id: 8, name: "Milk",        qty: 24,  unit: "litre",   min: 20 }
+];
+
+// Today's demand table shown on the dashboard
+const SEED_DEMAND = [
+  { item: "Vada Pav",  predicted: 130, sold: 118, stock: 60, level: "high"   },
+  { item: "Samosa",    predicted: 95,  sold: 90,  stock: 45, level: "high"   },
+  { item: "Misal Pav", predicted: 60,  sold: 52,  stock: 18, level: "medium" },
+  { item: "Poha",      predicted: 30,  sold: 22,  stock: 30, level: "low"    }
+];
+
+// Realistic sales history for the Sales page and charts
+function buildSeedSales() {
+  const items = [
+    ["Vada Pav", "Snacks", 20], ["Samosa", "Snacks", 15], ["Misal Pav", "Main Course", 45],
+    ["Poha", "Breakfast", 25], ["Idli", "South Indian", 30], ["Dosa", "South Indian", 50],
+    ["Tea", "Beverages", 10]
+  ];
+  const rows = [];
+  let id = 1;
+  for (let d = 6; d >= 0; d--) {                     // last 7 days
+    const date = new Date();
+    date.setDate(date.getDate() - d);
+    const dateStr = date.toISOString().slice(0, 10);
+    items.forEach(([name, cat, price]) => {
+      const qty = 25 + Math.floor(Math.random() * 105);
+      rows.push({ id: id++, date: dateStr, item: name, category: cat, qty: qty, amount: qty * price });
+    });
+  }
+  return rows;
+}
+
+/* ======================= 2. LOCALSTORAGE HELPERS ======================= */
+
+const KEYS = { auth: "sc_auth", foods: "sc_foods", inv: "sc_inventory", sales: "sc_sales", demand: "sc_demand" };
+
+function load(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
+}
+function save(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+
+// Create the sample data the first time the app runs
+function seedIfEmpty(force) {
+  if (force || !localStorage.getItem(KEYS.foods))  save(KEYS.foods, SEED_FOODS);
+  if (force || !localStorage.getItem(KEYS.inv))    save(KEYS.inv, SEED_INVENTORY);
+  if (force || !localStorage.getItem(KEYS.demand)) save(KEYS.demand, SEED_DEMAND);
+  if (force || !localStorage.getItem(KEYS.sales))  save(KEYS.sales, buildSeedSales());
+}
+
+// Small helper for the bottom notification
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.remove("hidden");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.add("hidden"), 2200);
+}
+
+/* ============================ 3. LOGIN ============================ */
+
+const loginScreen = document.getElementById("loginScreen");
+const app = document.getElementById("app");
+
+document.getElementById("loginForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+  const pass = document.getElementById("loginPassword").value;
+  if (email === DEMO_USER.email && pass === DEMO_USER.password) {
+    save(KEYS.auth, { email: email, time: Date.now() });
+    showApp();
+    toast("Welcome back, Admin!");
+  } else {
+    document.getElementById("loginError").classList.remove("hidden");
+  }
+});
+
+function logout() {
+  localStorage.removeItem(KEYS.auth);
+  app.classList.add("hidden");
+  loginScreen.classList.remove("hidden");
+}
+document.getElementById("logoutBtn").addEventListener("click", logout);
+document.getElementById("logoutBtn2").addEventListener("click", logout);
+
+function showApp() {
+  loginScreen.classList.add("hidden");
+  app.classList.remove("hidden");
+  renderAll();
+}
+
+/* ======================= 4. SIDEBAR NAVIGATION ======================= */
+
+const TITLES = {
+  dashboard: ["Dashboard", "Overview of today's canteen activity"],
+  food:      ["Food Management", "Add, edit or remove canteen menu items"],
+  predict:   ["Demand Prediction", "Estimate tomorrow's requirement for any item"],
+  analytics: ["Forecast & Analytics", "7-day forecast, sales trend and wastage"],
+  inventory: ["Inventory", "Raw material stock with low-stock warnings"],
+  alerts:    ["Smart Alerts", "Automatic suggestions for the canteen staff"],
+  sales:     ["Sales History", "Search, filter and sort past sales"],
+  about:     ["About Project", "Problem statement, benefits and future scope"],
+  settings:  ["Settings", "Manage the demo data of this project"]
+};
+
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
+document.querySelectorAll(".nav-item").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const page = btn.dataset.page;
+    document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById("page-" + page).classList.add("active");
+    document.getElementById("pageTitle").textContent = TITLES[page][0];
+    document.getElementById("pageSub").textContent = TITLES[page][1];
+    closeSidebar();
+    if (page === "analytics") drawCharts();     // charts need a visible canvas
+    window.scrollTo({ top: 0 });
+  });
+});
+
+function closeSidebar() { sidebar.classList.remove("open"); overlay.classList.remove("show"); }
+document.getElementById("menuBtn").addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
+});
+overlay.addEventListener("click", closeSidebar);
+
+/* ============================ 5. DASHBOARD ============================ */
+
+function renderDashboard() {
+  const rows = load(KEYS.demand, SEED_DEMAND);
+  document.getElementById("todayDemandBody").innerHTML = rows.map(r => `
+    <tr>
+      <td><b>${r.item}</b></td>
+      <td>${r.predicted}</td>
+      <td>${r.sold}</td>
+      <td>${r.stock}</td>
+      <td><span class="badge ${r.level}">${r.level.toUpperCase()} DEMAND</span></td>
+    </tr>`).join("");
+
+  const today = new Date().toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+  document.getElementById("todayChip").textContent = today;
+}
+
+/* ====================== 6. FOOD MANAGEMENT (CRUD) ====================== */
+
+const modal = document.getElementById("modal");
+const foodForm = document.getElementById("foodForm");
+const stockForm = document.getElementById("stockForm");
+
+function openModal(title, form) {
+  document.getElementById("modalTitle").textContent = title;
+  foodForm.classList.add("hidden");
+  stockForm.classList.add("hidden");
+  form.classList.remove("hidden");
+  modal.classList.remove("hidden");
+}
+function closeModal() { modal.classList.add("hidden"); }
+document.getElementById("modalClose").addEventListener("click", closeModal);
+document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", closeModal));
+modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
+
+function renderFoods() {
+  const foods = load(KEYS.foods, SEED_FOODS);
+  document.getElementById("foodBody").innerHTML = foods.map(f => `
+    <tr>
+      <td><b>${f.name}</b></td>
+      <td>${f.category}</td>
+      <td>₹${f.price}</td>
+      <td>${f.prep} min</td>
+      <td>${f.stock} ${f.stock < 15 ? '<span class="badge warn">LOW</span>' : ""}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editFood(${f.id})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteFood(${f.id})">Delete</button>
+      </td>
+    </tr>`).join("");
+  fillItemDropdown();
+}
+
+document.getElementById("addFoodBtn").addEventListener("click", () => {
+  foodForm.reset();
+  document.getElementById("fId").value = "";
+  openModal("Add Food Item", foodForm);
+});
+
+// Edit / Delete are called from the table buttons, so they must be global
+window.editFood = function (id) {
+  const f = load(KEYS.foods, []).find(x => x.id === id);
+  if (!f) return;
+  document.getElementById("fId").value = f.id;
+  document.getElementById("fName").value = f.name;
+  document.getElementById("fCategory").value = f.category;
+  document.getElementById("fPrice").value = f.price;
+  document.getElementById("fPrep").value = f.prep;
+  document.getElementById("fStock").value = f.stock;
+  openModal("Edit Food Item", foodForm);
+};
+
+window.deleteFood = function (id) {
+  if (!confirm("Delete this food item?")) return;
+  save(KEYS.foods, load(KEYS.foods, []).filter(x => x.id !== id));
+  renderFoods();
+  toast("Item deleted");
+};
+
+foodForm.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const foods = load(KEYS.foods, []);
+  const id = document.getElementById("fId").value;
+  const data = {
+    name: document.getElementById("fName").value.trim(),
+    category: document.getElementById("fCategory").value,
+    price: +document.getElementById("fPrice").value,
+    prep: +document.getElementById("fPrep").value,
+    stock: +document.getElementById("fStock").value
+  };
+  if (id) {                                        // UPDATE
+    const i = foods.findIndex(x => x.id === +id);
+    foods[i] = Object.assign(foods[i], data);
+    toast("Item updated");
+  } else {                                         // CREATE
+    data.id = Date.now();
+    foods.push(data);
+    toast("Item added");
+  }
+  save(KEYS.foods, foods);
+  renderFoods();
+  closeModal();
+});
+
+/* ==================== 7. DEMAND PREDICTION (CORE) ==================== */
+
+const DAY_FACTOR = { Monday: 1.05, Tuesday: 1.00, Wednesday: 1.02, Thursday: 1.03, Friday: 1.10, Saturday: 0.85, Sunday: 0.55 };
+const WEATHER_FACTOR = { normal: 1.00, rainy: 1.12, hot: 0.92, cold: 1.06 };
+const WEATHER_TEXT = { normal: "Normal weather", rainy: "Rainy day (+12% hot snacks)", hot: "Very hot day (-8%)", cold: "Cold day (+6%)" };
+
+function fillItemDropdown() {
+  const foods = load(KEYS.foods, SEED_FOODS);
+  const sel = document.getElementById("pItem");
+  const current = sel.value;
+  sel.innerHTML = foods.map(f => `<option>${f.name}</option>`).join("");
+  if (current) sel.value = current;
+}
+
+document.getElementById("predictForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  // ---- read the inputs ----
+  const item     = document.getElementById("pItem").value;
+  const prev     = +document.getElementById("pPrev").value;
+  const weekly   = +document.getElementById("pWeekly").value;
+  const students = +document.getElementById("pStudents").value;
+  const day      = document.getElementById("pDay").value;
+  const weather  = document.getElementById("pWeather").value;
+  const holiday  = document.getElementById("pHoliday").checked;
+  const event    = document.getElementById("pEvent").checked;
+
+  // ---- weighted calculation ----
+  const base      = (prev * 0.40) + (weekly * 0.60);   // recent + stable trend
+  const studentF  = students / 1000;                   // crowd factor
+  const dayF      = DAY_FACTOR[day] || 1;
+  const weatherF  = WEATHER_FACTOR[weather] || 1;
+  const holidayF  = holiday ? 0.45 : 1;
+  const eventF    = event ? 1.30 : 1;
+
+  let predicted = Math.round(base * studentF * dayF * weatherF * holidayF * eventF);
+  if (predicted < 0) predicted = 0;
+  const prep = Math.round(predicted * 1.08);           // 8% safety buffer
+
+  // ---- confidence ----
+  let conf = 95;
+  if (holiday) conf -= 12;
+  if (event) conf -= 10;
+  if (weather !== "normal") conf -= 5;
+  const gap = weekly ? Math.abs(prev - weekly) / weekly : 0;
+  if (gap > 0.30) conf -= 8; else if (gap > 0.15) conf -= 4;
+  conf = Math.max(60, Math.min(97, conf));
+
+  // ---- demand level compared with the weekly average ----
+  const ratio = weekly ? predicted / weekly : 1;
+  let level = "medium", text = "MEDIUM";
+  if (ratio > 1.15) { level = "high"; text = "HIGH"; }
+  else if (ratio < 0.85) { level = "low"; text = "LOW"; }
+
+  // ---- show the result ----
+  document.getElementById("predictEmpty").classList.add("hidden");
+  document.getElementById("predictResult").classList.remove("hidden");
+  document.getElementById("rDemand").textContent = predicted;
+  document.getElementById("rPrep").textContent = prep;
+  document.getElementById("rConf").textContent = conf + "%";
+  const lv = document.getElementById("rLevel");
+  lv.textContent = text;
+  lv.className = "badge " + level;
+  document.getElementById("rBar").style.width = conf + "%";
+
+  document.getElementById("rFactors").innerHTML = [
+    `Item selected: <b>${item}</b>`,
+    `Base demand from sales history: <b>${base.toFixed(1)} units</b> (40% previous day + 60% weekly average)`,
+    `Expected students: <b>${students}</b> &rarr; crowd factor <b>${studentF.toFixed(2)}</b>`,
+    `${day} factor: <b>${dayF}</b>`,
+    `${WEATHER_TEXT[weather]}: factor <b>${weatherF}</b>`,
+    holiday ? "College holiday applied: factor <b>0.45</b>" : "Regular working day (no holiday reduction)",
+    event ? "Special event / fest applied: factor <b>1.30</b>" : "No special event today",
+    `Recommended preparation includes an <b>8% safety buffer</b>.`
+  ].map(t => `<li>${t}</li>`).join("");
+});
+
+document.getElementById("predictForm").addEventListener("reset", function () {
+  document.getElementById("predictResult").classList.add("hidden");
+  document.getElementById("predictEmpty").classList.remove("hidden");
+});
+
+/* ============================ 8. CHARTS ============================ */
+
+let charts = {};   // keep references so charts can be destroyed and redrawn
+
+function drawCharts() {
+  if (typeof Chart === "undefined") return;         // CDN not loaded (offline)
+  Object.values(charts).forEach(c => c && c.destroy());
+
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const grid = { grid: { color: "#eef1f8" } };
+
+  // 7-day forecast (predicted vs actual)
+  charts.forecast = new Chart(document.getElementById("chartForecast"), {
+    type: "line",
+    data: {
+      labels: days,
+      datasets: [
+        { label: "Predicted", data: [305, 290, 315, 320, 355, 210, 140], borderColor: "#3b5bfd", backgroundColor: "rgba(59,91,253,.12)", fill: true, tension: .35 },
+        { label: "Actual", data: [298, 285, 309, 312, 349, 205, 132], borderColor: "#12b76a", tension: .35 }
+      ]
+    },
+    options: { responsive: true, scales: { y: grid, x: grid } }
+  });
+
+  // Sales trend in rupees
+  charts.sales = new Chart(document.getElementById("chartSales"), {
+    type: "bar",
+    data: {
+      labels: days,
+      datasets: [{ label: "Sales (₹)", data: [17200, 16400, 18450, 18900, 21500, 11800, 7400], backgroundColor: "#8b5cf6", borderRadius: 6 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: grid, x: grid } }
+  });
+
+  // Demand distribution between items
+  charts.dist = new Chart(document.getElementById("chartDist"), {
+    type: "doughnut",
+    data: {
+      labels: ["Vada Pav", "Samosa", "Misal Pav", "Poha", "Idli", "Dosa"],
+      datasets: [{ data: [130, 95, 60, 30, 45, 38], backgroundColor: ["#3b5bfd", "#8b5cf6", "#f59e0b", "#12b76a", "#0ea5a5", "#ef4444"] }]
+    },
+    options: { responsive: true, plugins: { legend: { position: "bottom" } } }
+  });
+
+  // Wastage percentage
+  charts.waste = new Chart(document.getElementById("chartWaste"), {
+    type: "line",
+    data: {
+      labels: days,
+      datasets: [{ label: "Wastage %", data: [14, 12, 11, 9, 8, 10, 13], borderColor: "#f59e0b", backgroundColor: "rgba(245,158,11,.15)", fill: true, tension: .35 }]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: true, grid: grid.grid }, x: grid } }
+  });
+}
+
+/* ============================ 9. INVENTORY ============================ */
+
+function stockStatus(i) {
+  if (i.qty <= 0) return ["out", "OUT OF STOCK"];
+  if (i.qty < i.min) return ["warn", "LOW STOCK"];
+  return ["ok", "SUFFICIENT"];
+}
+
+function renderInventory() {
+  const inv = load(KEYS.inv, SEED_INVENTORY);
+  document.getElementById("invBody").innerHTML = inv.map(i => {
+    const [cls, text] = stockStatus(i);
+    return `<tr>
+      <td><b>${i.name}</b></td>
+      <td>${i.qty}</td>
+      <td>${i.unit}</td>
+      <td>${i.min}</td>
+      <td><span class="badge ${cls}">${text}</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editStock(${i.id})">Update</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteStock(${i.id})">Delete</button>
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+document.getElementById("addStockBtn").addEventListener("click", () => {
+  stockForm.reset();
+  document.getElementById("sId").value = "";
+  openModal("Add Raw Material", stockForm);
+});
+
+window.editStock = function (id) {
+  const i = load(KEYS.inv, []).find(x => x.id === id);
+  if (!i) return;
+  document.getElementById("sId").value = i.id;
+  document.getElementById("sName").value = i.name;
+  document.getElementById("sQty").value = i.qty;
+  document.getElementById("sUnit").value = i.unit;
+  document.getElementById("sMin").value = i.min;
+  openModal("Update Stock", stockForm);
+};
+
+window.deleteStock = function (id) {
+  if (!confirm("Delete this material?")) return;
+  save(KEYS.inv, load(KEYS.inv, []).filter(x => x.id !== id));
+  renderInventory(); renderAlerts();
+  toast("Material deleted");
+};
+
+stockForm.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const inv = load(KEYS.inv, []);
+  const id = document.getElementById("sId").value;
+  const data = {
+    name: document.getElementById("sName").value.trim(),
+    qty: +document.getElementById("sQty").value,
+    unit: document.getElementById("sUnit").value,
+    min: +document.getElementById("sMin").value
+  };
+  if (id) {
+    const i = inv.findIndex(x => x.id === +id);
+    inv[i] = Object.assign(inv[i], data);
+    toast("Stock updated");
+  } else {
+    data.id = Date.now();
+    inv.push(data);
+    toast("Material added");
+  }
+  save(KEYS.inv, inv);
+  renderInventory(); renderAlerts();
+  closeModal();
+});
+
+/* =========================== 10. SMART ALERTS =========================== */
+
+function renderAlerts() {
+  const inv = load(KEYS.inv, SEED_INVENTORY);
+  const foods = load(KEYS.foods, SEED_FOODS);
+  const lowMaterials = inv.filter(i => i.qty < i.min);
+  const lowFoods = foods.filter(f => f.stock < 15);
+
+  const alerts = [];
+
+  // High demand alerts (from today's demand table)
+  load(KEYS.demand, SEED_DEMAND).filter(d => d.level === "high").forEach(d => {
+    alerts.push({ type: "danger", icon: "🔥", title: "High Demand: " + d.item,
+      text: `Predicted ${d.predicted} units today. Prepare extra and keep raw material ready before the 12:30 PM lunch rush.` });
+  });
+
+  // Low stock alerts
+  lowMaterials.forEach(m => {
+    alerts.push({ type: "warning", icon: "📦", title: "Low Stock: " + m.name,
+      text: `Only ${m.qty} ${m.unit} left (minimum required ${m.min} ${m.unit}). Please place a purchase order today.` });
+  });
+
+  lowFoods.forEach(f => {
+    alerts.push({ type: "warning", icon: "🍽", title: "Running Out: " + f.name,
+      text: `Only ${f.stock} units remaining in the counter. Prepare a fresh batch (prep time ${f.prep} min).` });
+  });
+
+  // College event alerts
+  alerts.push({ type: "info", icon: "🎓", title: "College Event: Tech Fest (Friday)",
+    text: "About 1,200 students expected. Snack demand may rise by 30%. Increase Vada Pav and Samosa preparation." });
+  alerts.push({ type: "info", icon: "📅", title: "Holiday Notice: Sunday",
+    text: "College closed. Reduce preparation to nearly 45% of a normal day to avoid wastage." });
+
+  document.getElementById("alertsWrap").innerHTML = alerts.map(a => `
+    <div class="card alert-card ${a.type}">
+      <h4>${a.icon} ${a.title}</h4>
+      <p class="muted">${a.text}</p>
+    </div>`).join("");
+}
+
+/* ========================= 11. SALES HISTORY ========================= */
+
+function renderSales() {
+  const all = load(KEYS.sales, []);
+  const q = document.getElementById("salesSearch").value.trim().toLowerCase();
+  const cat = document.getElementById("salesCategory").value;
+  const sort = document.getElementById("salesSort").value;
+
+  let rows = all.filter(r =>
+    (!cat || r.category === cat) &&
+    (!q || r.item.toLowerCase().includes(q) || r.date.includes(q))
+  );
+
+  const sorters = {
+    "date-desc": (a, b) => b.date.localeCompare(a.date),
+    "date-asc": (a, b) => a.date.localeCompare(b.date),
+    "amount-desc": (a, b) => b.amount - a.amount,
+    "amount-asc": (a, b) => a.amount - b.amount,
+    "qty-desc": (a, b) => b.qty - a.qty
+  };
+  rows.sort(sorters[sort]);
+
+  document.getElementById("salesBody").innerHTML = rows.length
+    ? rows.map(r => `<tr>
+        <td>${r.date}</td><td><b>${r.item}</b></td><td>${r.category}</td>
+        <td>${r.qty}</td><td>₹${r.amount.toLocaleString("en-IN")}</td></tr>`).join("")
+    : `<tr><td colspan="5" style="text-align:center;color:#6b7592">No records found.</td></tr>`;
+
+  const total = rows.reduce((s, r) => s + r.amount, 0);
+  document.getElementById("salesCount").textContent =
+    `Showing ${rows.length} of ${all.length} records • Total ₹${total.toLocaleString("en-IN")}`;
+}
+
+function fillSalesCategories() {
+  const cats = [...new Set(load(KEYS.sales, []).map(r => r.category))];
+  document.getElementById("salesCategory").innerHTML =
+    `<option value="">All categories</option>` + cats.map(c => `<option>${c}</option>`).join("");
+}
+
+["salesSearch", "salesCategory", "salesSort"].forEach(id =>
+  document.getElementById(id).addEventListener("input", renderSales));
+
+/* ====================== 12. SETTINGS / RESET DATA ====================== */
+
+document.getElementById("resetBtn").addEventListener("click", function () {
+  if (!confirm("Reset all data back to the original sample data?")) return;
+  seedIfEmpty(true);
+  renderAll();
+  toast("Demo data restored");
+});
+
+/* ============================== STARTUP ============================== */
+
+function renderAll() {
+  renderDashboard();
+  renderFoods();
+  renderInventory();
+  renderAlerts();
+  fillSalesCategories();
+  renderSales();
+  if (document.getElementById("page-analytics").classList.contains("active")) drawCharts();
+}
+
+seedIfEmpty(false);
+if (load(KEYS.auth, null)) showApp();      // stay logged in after refresh
+
+</script>
+</body>
+</html>
